@@ -1,0 +1,14 @@
+{
+  "name": "@repo/jamie-expo-templates",
+  "private": true,
+  "description": "A monorepo of Expo templates",
+  "version": "1.0.0",
+  "scripts": {
+    "format": "npm run format --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "workspaces": [
+    "packages/*",
+    "templates/*"
+  ]
+}
