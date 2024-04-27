@@ -1,10 +1,10 @@
 # Jamie Expo Templates
 
-We rely on `create-expo@canary` and `@expo/cli@canary` because it's only from the canary releases, namely SDK 51, that creating from subdirectories of GitHub repos becomes supported.
+While we refer to `create-expo@latest`, the minimum requirement is `create-expo@2.3.1` (as it supports SDK 51).
 
 ```sh
 # Create a given template
-npx create-expo@canary --template https://github.com/shirakaba/jamie-expo-templates/tree/main/templates/nativescript
+npx create-expo@latest --template https://github.com/shirakaba/jamie-expo-templates/tree/nativescript/templates/nativescript
 
 # Build and run the app for the first time
 cd name-of-your-app
@@ -14,7 +14,7 @@ npm run ios
 # otherwise it'll just build using the default template,
 # `expo-template-bare-minimum`.
 #
-# No need to specify `@expo/cli@canary` here, as projects created with
-# `create-expo@canary` get pinned to it anyway.
-npx expo prebuild --platform ios --template https://github.com/shirakaba/jamie-expo-templates/tree/main/templates/nativescript
+# No need to specify `@expo/cli@latest` here, as projects created with
+# `create-expo@latest` get pinned to it anyway.
+npx expo prebuild --platform ios --template https://github.com/shirakaba/jamie-expo-templates/tree/nativescript/templates/nativescript
 ```
