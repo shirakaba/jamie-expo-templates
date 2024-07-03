@@ -1,72 +1,76 @@
 # expo-template-nativescript
 
-A proof-of-concept of Expo + NativeScript.
+A proof-of-concept of [Expo](https://expo.dev) + [NativeScript](https://nativescript.org), made possible by [Node-API](https://nodejs.org/api/n-api.html).
 
-This new NativeScript runtime is based on Node-API, so we have supplied a build of Microsoft's [fork](https://github.com/microsoft/hermes-windows) of Hermes that implements Node-API, with a few extra [patches](https://github.com/DjDeveloperr/hermes-windows/tree/fix-ios). This build is placed at `hermes-ios-release.tar.gz` and is version `v0.12.3`. In future, we are hopeful that it will be possible to install Node-API support as an add-on for stable Hermes rather than having to use a fork.
+## About
 
-## Notes to self
+### Expo SDK and React Native support
 
-Changing this template and building an app with it is very fiddly for now.
+This proof-of-concept is limited to React Native `v0.72.4` because that's the latest version that supports our old fork of Hermes, which we need to provide Node-API support as explained below.
+
+React Native `0.72.4` was part of Expo SDK 50, so we have to use the `expo@~50.0.4` npm package. However, we must use the CLI from Expo SDK 51 or above to create and prebuild the project (as Expo SDK 51 is when this [PR](https://github.com/expo/expo/pull/27212) landed).
+
+### Node-API support
+
+This project Microsoft's [fork](https://github.com/microsoft/hermes-windows) of Hermes `v0.12.3`, with a few extra [patches](https://github.com/DjDeveloperr/hermes-windows/tree/fix-ios) to add Node-API support (which NativeScript depends upon).
+
+This template provides a ready-built Hermes: `hermes-ios-release.tar.gz`, which it references in `ios/Podfile` via the `HERMES_ENGINE_TARBALL_PATH` environment variable. However, you can build it from source yourself by following [these](https://github.com/shirakaba/jamie-expo-templates/blob/nativescript/templates/nativescript/notes-to-self.md) instructions.
+
+### Supported platforms
+
+NativeScript is only available for iOS for now, so the provided Android template is just the usual [expo-template-bare-minimum](https://github.com/expo/expo/tree/main/templates/expo-template-bare-minimum).
+
+## Setup
+
+### Creating an app from this template
+
+We recommend bun as it installs [much quicker](https://x.com/notbrent/status/1701044351177244790).
 
 ```sh
-# Until https://github.com/expo/expo/pull/27212 lands, we rely on forks of
-# create-expo and @expo-cli.
+# Via npm
+npx create-expo@latest --template https://github.com/shirakaba/jamie-expo-templates/tree/nativescript/templates/nativescript
 
-# How to build create-expo:
-$ cd ~/git/expo/packages/create-expo
-$ yarn build
-# (this creates ~/git/expo/packages/create-expo/build/index.js)
-
-# How to build @expo-cli:
-$ cd ~/git/expo/packages/@expo/cli
-$ yarn prepare
-# (this creates ~/git/expo/packages/@expo/cli/build/bin/cli)
-
-# How to pack this repo:
-$ cd ~/git/expo-template-nativescript
-$ npm pack
-# (this creates ~/git/expo-template-nativescript/expo-template-nativescript-50.0.33.tgz
-
-# Let's create an app with this under ~/git.
-# I've been naming them xns1, xns2, etc.
-$ cd ~/git
-$ ~/git/expo/packages/create-expo/build/index.js --template ~/git/expo-template-nativescript/expo-template-nativescript-50.0.33.tgz
-✔ What is your app named? … xns9
-✔ Installed pods and initialized Xcode workspace.
-
-✅ Your project is ready!
-
-To run your project, navigate to the directory and run one of the following yarn commands.
-
-- cd xns9
-- yarn android
-- yarn ios
-- yarn web
-
-# Now let's prebuild it. It's important to specify the template again, as
-# otherwise it just prebuilds from the default template,
-# expo-template-bare-minimum(?).
-#
-# In future, if Hermes upstreams Node-API support, we can drop the patch to
-# ios/Podfile, and prebuild from the default template just fine, meaning we'd
-# only need a template for expo-create.
-$ cd xns9
-$ ~/git/expo/packages/@expo/cli/build/bin/cli prebuild --template ~/git/expo-template-nativescript/expo-template-nativescript-50.0.33.tgz --platform=ios
-
-# Now lets build it.
-# We might not need the forked CLI at this point, but just for consistency.
-$ ~/git/expo/packages/@expo/cli/build/bin/cli run:ios
+# Via bun
+bun create expo@latest --template https://github.com/shirakaba/jamie-expo-templates/tree/nativescript/templates/nativescript
 ```
 
-However, this process should become much simpler in time.
+The first time you create the app, it will prebuild it for you as well.
 
-- If Expo approves merging my [#27212](https://github.com/expo/expo/pull/27212) PR, we can stop using forks of `create-expo` and `@expo/cli`.
-- Once Node-API support is upstreamed into Hermes, we can:
-  - stop vending `hermes-ios-release.tar.gz`.
-  - stop pinning to `react-native@0.72.4`.
-  - maybe drop the patch to `ios/Podfile`, either by pinning to some nightly version of `react-native` that includes the new Hermes, or by adding a `resolutions` field to the template's `package.json`.
-    - This would mean we could stop instructing users to to pass the `--template` arg to `expo prebuild`.
-  - maybe initialise the Objective-C bindings via a JSI module, allowing us to drop the `patch-package` patch to `HermesExecutorFactory.cpp`.
-- Once we have published `@nativescript/ios-macos` (or whatever we're going to call it), we can stop vending it as a local npm package.
+### Prebuilding
 
-If we can tackle all of these points, integrating NativeScript may become very easy indeed. Users would just install `@nativescript/react-native`, a npm package holding an autolinked JSI module that would call `objc_bridge_init()` to set up its subdependency, `@nativescript/ios-macos`. We might even be able to retire the template altogether!
+The app will be ready-prebuilt upon first creating from this template, but in case you want to do a manual prebuild, here's how.
+
+#### The easy (but slow) way
+
+The easy way is to use the script written into the `package.json`. However, it's slow because it has to download this repo.
+
+```sh
+# Via npm
+npm run prebuild
+
+# Via bun
+bun prebuild
+```
+
+#### The fast way
+
+The faster way, if you're planning to prebuild often, is to download this repo yourself and create a ready-packed template that you can prebuild from locally. This avoids having to redownload it on each prebuild.
+
+```sh
+git clone --single-branch --branch nativescript git@github.com:shirakaba/jamie-expo-templates.git
+cd jamie-expo-templates/templates/nativescript
+npm pack
+# This will output your local prebuild template: expo-template-nativescript-50.0.33.tgz
+```
+
+Now you can prebuild from that template:
+
+```sh
+# Via npm
+npx expo prebuild --template path/to/expo-template-nativescript-50.0.33.tgz
+
+# Via bun
+bunx expo prebuild --template path/to/expo-template-nativescript-50.0.33.tgz
+
+# (Consider committing the template to the repo and adding an npm script for this)
+```
