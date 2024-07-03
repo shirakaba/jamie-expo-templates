@@ -1,0 +1,34 @@
+diff --git a/node_modules/react-native-reanimated/Common/cpp/ReanimatedRuntime/ReanimatedRuntime.cpp b/node_modules/react-native-reanimated/Common/cpp/ReanimatedRuntime/ReanimatedRuntime.cpp
+index ee3a6ca..6c26196 100644
+--- a/node_modules/react-native-reanimated/Common/cpp/ReanimatedRuntime/ReanimatedRuntime.cpp
++++ b/node_modules/react-native-reanimated/Common/cpp/ReanimatedRuntime/ReanimatedRuntime.cpp
+@@ -18,6 +18,11 @@
+ #endif // REACT_NATIVE_MINOR_VERSION
+ #endif // JS_RUNTIME
+ 
++// NativeScript START
++#include <hermes/hermes_api.h>
++extern "C" void objc_bridge_init(napi_env env, const char *metadata_path);
++// NativeScript END
++
+ namespace reanimated {
+ 
+ using namespace facebook;
+@@ -33,6 +38,17 @@ std::shared_ptr<jsi::Runtime> ReanimatedRuntime::make(
+   // later in ReanimatedHermesRuntime
+ 
+   auto runtime = facebook::hermes::makeHermesRuntime();
++
++  // NativeScript START
++  napi_env env;
++  runtime->createNapiEnv(&env);
++
++  jsr_napi_env_scope env_scope;
++  jsr_open_napi_env_scope(env, &env_scope);
++
++  objc_bridge_init(env, nullptr);
++  // NativeScript END
++
+   return std::make_shared<ReanimatedHermesRuntime>(
+       std::move(runtime), jsQueue, name);
+ #elif JS_RUNTIME_V8
