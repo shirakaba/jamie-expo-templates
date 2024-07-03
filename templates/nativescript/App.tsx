@@ -18,9 +18,6 @@ export default function App() {
     runOnUI(() => {
       // react-native-reanimated does something strange to global scope so we
       // have to access via `global`, meaning we lose all typings :(
-      //
-      // TODO: try out Margelo's worklets, which handle globals differently:
-      // https://github.com/margelo/react-native-worklets-core
       const { UIAlertController, UIAlertAction, UIApplication } = global as any;
 
       const alertController =
